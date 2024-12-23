@@ -9,6 +9,8 @@
 #include "OrbitDiskParts.h"
 #include "DominateEyeTestActor.h"
 #include "NiagaraSystem.h"
+#include "Engine/EngineTypes.h"
+#include "DrawDebugHelpers.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 
@@ -177,6 +179,36 @@ FHitResult AVRCharacter::GetRayHitResult(FVector StartLoc, FVector EndLoc)
 	// 히트 결과 값 받을 변수
 	FHitResult HitResult;
 
+	
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+
+	bValidRayTrace = GetWorld()->LineTraceSingleByChannel(
+		HitResult,
+		StartLoc,
+		EndLoc,
+		ECollisionChannel::ECC_GameTraceChannel2,
+		QueryParams
+	);
+	
+	FColor LineColor = bValidRayTrace ? FColor::Green : FColor::Red;
+
+	DrawDebugLine(GetWorld(), StartLoc, EndLoc, LineColor, false);
+
+	/*
+	UKismetSystemLibrary::LineTraceSingle(
+		GetWorld(),
+		StartLoc,
+		EndLoc,
+		ETraceTypeQuery::TraceTypeQuery1,
+		false,
+		IgnoreActors,
+		EDrawDebugTrace::ForDuration, // 선을 표시 하지 않으려면 EDrawDebugTrace::None , 선을 표시 하려면 EDrawDebugTrace::ForDuration
+		HitResult,
+		true
+	);
+	
+
 	// RayCast 수행
 	bValidRayTrace = UKismetSystemLibrary::LineTraceSingleForObjects(
 		GetWorld(),
@@ -185,7 +217,7 @@ FHitResult AVRCharacter::GetRayHitResult(FVector StartLoc, FVector EndLoc)
 		ObjectTypes,
 		false,
 		IgnoreActors, // 무시할 것이 없다고해도 null을 넣을 수 없다.
-		EDrawDebugTrace::None, // 선을 표시 하지 않으려면 EDrawDebugTrace::None , 선을 표시 하려면 EDrawDebugTrace::ForDuration
+		EDrawDebugTrace::ForDuration, // 선을 표시 하지 않으려면 EDrawDebugTrace::None , 선을 표시 하려면 EDrawDebugTrace::ForDuration
 		HitResult,
 		true
 		//  아래 3개는 기본 값으로 제공 수정 하고 싶으면 값을 지정
@@ -193,6 +225,7 @@ FHitResult AVRCharacter::GetRayHitResult(FVector StartLoc, FVector EndLoc)
 		//, FLinearColor::Green
 		//, 5.0f
 	);
+	*/
 
 	return HitResult;
 
@@ -277,7 +310,7 @@ void AVRCharacter::Tick(float DeltaTime)
 	TArray<FVector> RayLoc = GetRayPoint();
 	FHitResult HitResult = GetRayHitResult(RayLoc[0], RayLoc[1]);
 	AActor* HitActor = HitResult.GetActor();
-	
+	//GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, FString::Printf(TEXT("Hit Actor Name: %s"), *HitActor->GetName()));
 	
 	if (bValidRayTrace)
 	{

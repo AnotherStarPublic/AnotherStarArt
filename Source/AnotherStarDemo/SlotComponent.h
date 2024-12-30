@@ -26,6 +26,8 @@ public :
 	bool bIsItHorizon;
 
 	FORCEINLINE void SetTime(float Times) { Time = Times; }
-	FORCEINLINE float GetTime() { return Time; }
+	FORCEINLINE void SetbIsItHorizon(bool IsItHorizon) { bIsItHorizon = IsItHorizon; }
 
+	FORCEINLINE float GetTime() { return Time; }
+	FORCEINLINE bool GetbIsItHorizon() { return bIsItHorizon; }
 };

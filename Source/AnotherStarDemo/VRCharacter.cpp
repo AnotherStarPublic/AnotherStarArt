@@ -6,7 +6,6 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "OrbitDisk.h"
-#include "OrbitDiskParts.h"
 #include "DominateEyeTestActor.h"
 #include "NiagaraSystem.h"
 #include "Engine/EngineTypes.h"
@@ -74,7 +73,7 @@ AVRCharacter::AVRCharacter()
 	//HeldComponentLeft = nullptr;
 	//HeldComponentRight = nullptr;
 	HitResultActor = nullptr;
-	PartsOrbitDisk = nullptr;
+	OrbitDisk = nullptr;
 	TeleportVisualizerReference = nullptr;
 	ActiveOverlappingItem = nullptr;
 	
@@ -236,10 +235,10 @@ void AVRCharacter::SetRayOrbitDisk(AActor* HitActor)
 	if (HitActor)
 	{
 		// 발사된 RayCast가 OrbitDisk면 Cast할 수 있도록 제어하고 만약 OrbitDisk가 Cast에 성공하면 Character의 TimeOrbitDisk를 Set
-		AOrbitDiskParts* OrbitDiskParts = Cast<AOrbitDiskParts>(HitActor);
-		if (OrbitDiskParts)
+		AOrbitDisk* OrbitDiskActor = Cast<AOrbitDisk>(HitActor);
+		if (OrbitDiskActor)
 		{
-			SetOrbitDisk(OrbitDiskParts);
+			SetOrbitDisk(OrbitDiskActor);
 		}
 		else
 		{
@@ -318,9 +317,9 @@ void AVRCharacter::Tick(float DeltaTime)
 
 		float RotateAngle = CalculateRotateDiskAngle(HitResult, HitActor);
 
-		if (bGrabOrbitDisk && PartsOrbitDisk)
+		if (bGrabOrbitDisk && OrbitDisk)
 		{
-			PartsOrbitDisk->RotateDisk(RotateAngle);
+			OrbitDisk->RotateParts(RotateAngle);
 		}
 
 
@@ -455,7 +454,7 @@ void AVRCharacter::RightTrigger(const FInputActionValue& Value)
 
 	if (bValidRayTrace)
 	{
-		if (PartsOrbitDisk)
+		if (OrbitDisk)
 		{
 			bGrabOrbitDisk = bIsTriggered;
 		}
@@ -473,9 +472,9 @@ void AVRCharacter::RightRelease(const FInputActionValue& Value)
 
 	UE_LOG(LogTemp, Warning, TEXT("ReleaseReleaseReleaseReleaseRelease"));
 
-	if (PartsOrbitDisk)
+	if (OrbitDisk)
 	{
-		if (PartsOrbitDisk->bIsOverlappedWithSlot)
+		if (OrbitDisk->bIsOverlappedWithSlot)
 		{
 			
 		}

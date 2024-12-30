@@ -17,7 +17,13 @@ AOrbitDisk::AOrbitDisk()
 	SlotCollisionRootSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SlotCollisionRootSceneComponent"));
 	DiskComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DiskComponent"));
 	PartsComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PartsComponent"));
-	SlotComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SlotComponent"));
+	SlotComponent1 = CreateDefaultSubobject<USlotComponent>(TEXT("SlotComponent1"));
+	SlotComponent2 = CreateDefaultSubobject<USlotComponent>(TEXT("SlotComponent2"));
+	SlotComponent3 = CreateDefaultSubobject<USlotComponent>(TEXT("SlotComponent3"));
+	SlotComponent4 = CreateDefaultSubobject<USlotComponent>(TEXT("SlotComponent4"));
+	SlotComponent5 = CreateDefaultSubobject<USlotComponent>(TEXT("SlotComponent5"));
+	SlotComponent6 = CreateDefaultSubobject<USlotComponent>(TEXT("SlotComponent6"));
+	HorizonComponent = CreateDefaultSubobject<USlotComponent>(TEXT("HorizonComponent"));
 	PartsCollisionVolume = CreateDefaultSubobject<USphereComponent>(TEXT("PartsCollisionVolume"));
 	SlotCollisionVolume = CreateDefaultSubobject<USphereComponent>(TEXT("SlotCollisionVolume"));
 
@@ -28,18 +34,23 @@ AOrbitDisk::AOrbitDisk()
 	SlotCollisionRootSceneComponent->SetupAttachment(GetRootComponent());
 	DiskComponent->SetupAttachment(GetRootComponent());
 	PartsComponent->SetupAttachment(PartsRootSceneComponent);
-	SlotComponent->SetupAttachment(SlotRootSceneComponent);
+	SlotComponent1->SetupAttachment(SlotRootSceneComponent);
+	SlotComponent2->SetupAttachment(SlotRootSceneComponent);
+	SlotComponent3->SetupAttachment(SlotRootSceneComponent);
+	SlotComponent4->SetupAttachment(SlotRootSceneComponent);
+	SlotComponent5->SetupAttachment(SlotRootSceneComponent);
+	SlotComponent6->SetupAttachment(SlotRootSceneComponent);
+	HorizonComponent->SetupAttachment(SlotRootSceneComponent);
 	PartsCollisionVolume->SetupAttachment(PartsCollisionRootSceneComponent);
 	SlotCollisionVolume->SetupAttachment(SlotCollisionRootSceneComponent);
 	
 	// 궤적을 나타내는 고리와는 OverlapEvent를 발생시키면 안된다.
 	DiskComponent->SetGenerateOverlapEvents(false);
-
-	// 일반 StaticMesh와 PartsComponent를 구분하기 위한  Tag
-	PartsComponent->ComponentTags.Add(FName("Parts"));
+	HorizonComponent->SetbIsItHorizon(true);
 	
 	bIsOverlappedWithSlot = false;
-
+	bIsOverlappedWithHorizon = false;
+	bIsItNight = false;
 }
 
 // Called when the game starts or when spawned
@@ -48,9 +59,7 @@ void AOrbitDisk::BeginPlay()
 	Super::BeginPlay();
 
 	PartsCollisionVolume->OnComponentBeginOverlap.AddDynamic(this, &AOrbitDisk::OnPartsComponentOverlapBegin);
-	SlotCollisionVolume->OnComponentBeginOverlap.AddDynamic(this, &AOrbitDisk::OnSlotComponentOverlapBegin);
 	PartsCollisionVolume->OnComponentEndOverlap.AddDynamic(this, &AOrbitDisk::OnPartsComponentOverlapEnd);
-	SlotCollisionVolume->OnComponentEndOverlap.AddDynamic(this, &AOrbitDisk::OnSlotComponentOverlapEnd);
 
 
 	
@@ -91,23 +100,58 @@ void AOrbitDisk::SetLookAtRoot(UStaticMeshComponent* TargetComponent)
 void AOrbitDisk::OnPartsComponentOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("PartsComponent Overlap Begin... Other Actor Name: %s"), *OtherActor->GetName()));
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("PartsComponent Overlap Begin... Other Comp Name: %s"), *OtherComp->GetName()));
-}
+	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("PartsComponent Overlap Begin... Other Comp Class Name: %s"), *OtherComp->GetClass()->GetName()));
 
-void AOrbitDisk::OnSlotComponentOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, FString::Printf(TEXT("SlotComponent Overlap Begin... Other Actor Name: %s"), *OtherActor->GetName()));
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, FString::Printf(TEXT("SlotComponent Overlap Begin... Other Comp Name: %s"), *OtherComp->GetName()));
+	if (OtherComp)
+	{
+		USlotComponent* OverlappedSlotComponent = Cast<USlotComponent>(OtherComp);
+
+		if (OverlappedSlotComponent)
+		{
+			bIsOverlappedWithSlot = true;
+
+			FVector SlotLocation = OverlappedSlotComponent->GetComponentLocation();
+			FRotator SlotRotation = OverlappedSlotComponent->GetComponentRotation();
+			if (OverlappedSlotComponent->bIsItHorizon)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, FString::Printf(TEXT("HorizonHorizonHorizonHorizon")));
+				bIsOverlappedWithHorizon = true;
+			}
+
+			SetOverlappedSlotTime(OverlappedSlotComponent->Time);
+
+			PartsComponent->SetWorldLocationAndRotation(SlotLocation, SlotRotation);
+
+			float Time = OverlappedSlotComponent->GetTime();
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, TEXT("Failed to cast to USlotComponent"));
+		}
+
+	}
+
 }
 
 void AOrbitDisk::OnPartsComponentOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Blue, FString::Printf(TEXT("PartsComponent Overlap End... Other Actor Name: %s"), *OtherActor->GetName()));
 	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Blue, FString::Printf(TEXT("PartsComponent Overlap End... Other Comp Name: %s"), *OtherComp->GetName()));
-}
 
-void AOrbitDisk::OnSlotComponentOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Purple, FString::Printf(TEXT("SlotComponent Overlap End... Other Actor Name: %s"), *OtherActor->GetName()));
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Purple, FString::Printf(TEXT("SlotComponent Overlap End... Other Comp Name: %s"), *OtherComp->GetName()));
+	if (OtherComp)
+	{
+		USlotComponent* OverlappedSlotComponent = Cast<USlotComponent>(OtherComp);
+		if (OverlappedSlotComponent)
+		{
+			bIsOverlappedWithSlot = false;
+			bIsOverlappedWithHorizon = false;
+
+			// 파츠의 위치 Snap 해제
+			FVector CollisionLocation = PartsCollisionVolume->GetComponentLocation();
+			FRotator CollisionRotation = PartsCollisionVolume->GetComponentRotation();
+
+			PartsComponent->SetWorldLocationAndRotation(CollisionLocation, CollisionRotation);
+		}
+	}
+
 }

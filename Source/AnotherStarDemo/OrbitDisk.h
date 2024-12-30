@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/SphereComponent.h"
+#include "SlotComponent.h"
 #include "OrbitDisk.generated.h"
 
 
@@ -39,20 +40,47 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
 	UStaticMeshComponent* PartsComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
-	UStaticMeshComponent* SlotComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slot")
+	class USlotComponent* SlotComponent1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slot")
+	USlotComponent* SlotComponent2;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slot")
+	USlotComponent* SlotComponent3;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slot")
+	USlotComponent* SlotComponent4;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slot")
+	USlotComponent* SlotComponent5;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slot")
+	USlotComponent* SlotComponent6;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slot")
+	USlotComponent* HorizonComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CollisionVolume")
 	class USphereComponent* PartsCollisionVolume;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CollisionVolume")
 	class USphereComponent* SlotCollisionVolume;
-
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character")
 	class AVRCharacter* ControlCharacter;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time Of Day")
+	float OverlappedSlotTime;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
 	bool bIsOverlappedWithSlot;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
+	bool bIsOverlappedWithHorizon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
+	bool bIsItNight;
 
 protected:
 	// Called when the game starts or when spawned
@@ -72,12 +100,8 @@ public:
 	void OnPartsComponentOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
-	void OnSlotComponentOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
 	void OnPartsComponentOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
-	UFUNCTION()
-	void OnSlotComponentOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
+	FORCEINLINE void SetOverlappedSlotTime(float SlotTime) { OverlappedSlotTime = SlotTime; }
+
 };

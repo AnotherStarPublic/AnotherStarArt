@@ -116,7 +116,7 @@ public:
 	class AActor* HitResultActor;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "SunPosition")
-	class AOrbitDiskParts* PartsOrbitDisk;
+	class AOrbitDisk* OrbitDisk;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "DominantEye")
 	class ADominateEyeTestActor* DominantEyeTestActor;
@@ -278,7 +278,7 @@ public:
 
 	TTuple<FVector, bool> IsValidTeleportLocation(FHitResult Hit);
 	
-	FORCEINLINE void SetOrbitDisk(AOrbitDiskParts* OrbitDiskParts) { PartsOrbitDisk = OrbitDiskParts; }
+	FORCEINLINE void SetOrbitDisk(AOrbitDisk* OrbitDiskActor) { OrbitDisk = OrbitDiskActor; }
 	FORCEINLINE void SetDominantEye(EDominantEye DominateEye) { DominantEye = DominateEye; }
 	FORCEINLINE void SetDominantEyeTestActor(ADominateEyeTestActor* DominateEyeTestActor) { DominantEyeTestActor = DominateEyeTestActor; }
 	FORCEINLINE void SetActiveOverlappingItem(AItem* Item) { ActiveOverlappingItem = Item; }

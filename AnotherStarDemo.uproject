@@ -65,6 +65,10 @@
 				"Linux",
 				"Android"
 			]
+		},
+		{
+			"Name": "CascadeToNiagaraConverter",
+			"Enabled": true
 		}
 	]
 }
